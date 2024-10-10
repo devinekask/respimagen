@@ -1,10 +1,25 @@
 #!/usr/bin/env node
-import sharp from "sharp";
-import yargs from "yargs";
 import fs from "fs/promises";
 import path from "path";
+import sharp from "sharp";
+import yargs from "yargs";
+import { srcsetGenerator } from "./utils.js";
 
 const output = [];
+const sizes = [];
+let files = [];
+const queue = [];
+
+const defaultTypes = [
+  { id: "webp" },
+  { id: "jpeg", options: { mozjpeg: true } },
+  { id: "avif" },
+];
+
+const logFile = (file, ext, size) => {
+  console.log(`✅ ${file}-${size}.${ext} - ${size}`);
+  output.push({ file: `${file}-${size}.${ext}`, ext, size });
+};
 
 const argv = yargs(process.argv.slice(2))
   .usage(
@@ -36,26 +51,16 @@ const argv = yargs(process.argv.slice(2))
 
 const { input, outputdir } = argv;
 
-const sizes = [];
 if (argv.sizes != "-") {
   sizes.push(...argv.sizes.split(",").map((s) => parseInt(s)));
 }
 
-const defaultTypes = [
-  { id: "webp" },
-  { id: "jpeg", options: { mozjpeg: true } },
-  { id: "avif" },
-];
-
-//get formats from command line arguments
 const formats = argv.filetypes
   .split(",")
   .map((f) => defaultTypes.find((df) => df.id === f));
 
-const inputPath = path.resolve(input);
-let files = [];
-
 try {
+  const inputPath = path.resolve(input);
   const stats = await fs.stat(inputPath);
 
   if (stats.isFile()) {
@@ -89,17 +94,14 @@ try {
   console.log("error", e);
 }
 
-const promises = [];
-
 for (const file of files) {
-  //get filename without extension
   const filename = path.basename(file, path.extname(file));
 
   const image = sharp(file);
 
   for (const format of formats) {
     for (const size of sizes) {
-      promises.push(
+      queue.push(
         image
           .clone()
           .resize({ width: size })
@@ -111,7 +113,7 @@ for (const file of files) {
     }
     if (sizes.length === 0) {
       const imgSize = await image.metadata();
-      promises.push(
+      queue.push(
         image
           .clone()
           .toFormat(format.id)
@@ -123,12 +125,7 @@ for (const file of files) {
   }
 }
 
-const logFile = (file, ext, size) => {
-  console.log(`✅ ${file}-${size}.${ext} - ${size}`);
-  output.push({ file: `${file}-${size}.${ext}`, ext, size });
-};
-
-Promise.all(promises)
+Promise.all(queue)
   .then(() => {
     console.log("Everything done");
     if (sizes.length != 0) {
@@ -138,25 +135,3 @@ Promise.all(promises)
   .catch((err) => {
     console.error("Error processing files", err);
   });
-
-const srcsetGenerator = (files) => {
-  // group files by extension
-  const groupedFiles = files.reduce((acc, file) => {
-    const ext = file.ext;
-    if (!acc[ext]) {
-      acc[ext] = [];
-    }
-    acc[ext].push(file);
-    return acc;
-  }, {});
-
-  // generate srcset for each extension
-  const srcsets = Object.entries(groupedFiles).map(
-    ([ext, files]) =>
-      `srcset="${files
-        .map((file) => `${file.file} ${file.size}w`)
-        .join(",\n")}"`
-  );
-
-  return srcsets.join("\n\n");
-};
