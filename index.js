@@ -15,7 +15,10 @@ const argv = yargs(process.argv.slice(2))
   .alias("t", "filetypes")
   .alias("o", "outputdir")
   .describe("i", "file or directory to process")
-  .describe("s", "different sizes to generate, separated by comma")
+  .describe(
+    "s",
+    "different sizes to generate, separated by comma. Add a '-' to skip this"
+  )
   .describe("t", "different filetypes to generate, separated by comma")
   .describe("c", "clear the output directory before processing, default false")
   .boolean("c")
@@ -81,7 +84,7 @@ if (argv.c) {
 }
 
 try {
-  await fs.mkdir(outputdir);
+  await fs.mkdir(outputdir, { recursive: true });
 } catch (e) {
   console.log("error", e);
 }
@@ -102,7 +105,7 @@ for (const file of files) {
           .resize({ width: size })
           .toFormat(format.id)
           .toFile(`${outputdir}/${filename}-${size}.${format.id}`)
-          .then(() => logFile(`${filename}-${size}.${format.id}`, size))
+          .then(() => logFile(filename, format.id, size))
           .catch((err) => console.error("Error processing file", err))
       );
     }
@@ -113,29 +116,47 @@ for (const file of files) {
           .clone()
           .toFormat(format.id)
           .toFile(`${outputdir}/${filename}.${format.id}`)
-          .then(() => logFile(`${filename}.${format.id}`, imgSize.width))
+          .then(() => logFile(filename, format.id, imgSize.width))
           .catch((err) => console.error("Error processing file", err))
       );
     }
   }
 }
 
-const logFile = (file, size) => {
-  console.log(`✅ ${file} - ${size}`);
-  output.push({ file, size });
+const logFile = (file, ext, size) => {
+  console.log(`✅ ${file}-${size}.${ext} - ${size}`);
+  output.push({ file: `${file}-${size}.${ext}`, ext, size });
 };
 
 Promise.all(promises)
   .then(() => {
     console.log("Everything done");
     if (sizes.length != 0) {
-      console.log(
-        `\nsrcset="${output
-          .map((img) => `${img.file} ${img.size}w`)
-          .join(",\n")}"\n`
-      );
+      console.log(`\n` + srcsetGenerator(output));
     }
   })
   .catch((err) => {
     console.error("Error processing files", err);
   });
+
+const srcsetGenerator = (files) => {
+  // group files by extension
+  const groupedFiles = files.reduce((acc, file) => {
+    const ext = file.ext;
+    if (!acc[ext]) {
+      acc[ext] = [];
+    }
+    acc[ext].push(file);
+    return acc;
+  }, {});
+
+  // generate srcset for each extension
+  const srcsets = Object.entries(groupedFiles).map(
+    ([ext, files]) =>
+      `srcset="${files
+        .map((file) => `${file.file} ${file.size}w`)
+        .join(",\n")}"`
+  );
+
+  return srcsets.join("\n\n");
+};
