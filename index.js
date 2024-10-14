@@ -10,10 +10,11 @@ const sizes = [];
 let files = [];
 const queue = [];
 
-const defaultTypes = [
+const defaultFiletypeSettings = [
+  { id: "avif" },
   { id: "webp" },
   { id: "jpeg", options: { mozjpeg: true } },
-  { id: "avif" },
+  { id: "jpg", options: { mozjpeg: true } },
   { id: "png" },
 ];
 
@@ -59,7 +60,9 @@ if (argv.sizes != "-") {
 const formats = argv.filetypes
   .split(",")
   .map((f) =>
-    defaultTypes.find((df) => df.id.toLowerCase() === f.toLowerCase())
+    defaultFiletypeSettings.find(
+      (df) => df.id.toLowerCase() === f.toLowerCase()
+    )
   );
 
 try {
@@ -108,7 +111,7 @@ for (const file of files) {
         image
           .clone()
           .resize({ width: size })
-          .toFormat(format.id)
+          .toFormat(format.id, format.options)
           .toFile(`${outputdir}/${filename}-${size}.${format.id}`)
           .then(() => logFile(filename, format.id, size))
           .catch((err) => console.error("Error processing file", err))
@@ -119,7 +122,7 @@ for (const file of files) {
       queue.push(
         image
           .clone()
-          .toFormat(format.id)
+          .toFormat(format.id, format.options)
           .toFile(`${outputdir}/${filename}.${format.id}`)
           .then(() => logFile(filename, format.id, imgSize.width))
           .catch((err) => console.error("Error processing file", err))
