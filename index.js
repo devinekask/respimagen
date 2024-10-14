@@ -58,7 +58,9 @@ if (argv.sizes != "-") {
 
 const formats = argv.filetypes
   .split(",")
-  .map((f) => defaultTypes.find((df) => df.id === f));
+  .map((f) =>
+    defaultTypes.find((df) => df.id.toLowerCase() === f.toLowerCase())
+  );
 
 try {
   const inputPath = path.resolve(input);
