@@ -14,6 +14,7 @@ const defaultTypes = [
   { id: "webp" },
   { id: "jpeg", options: { mozjpeg: true } },
   { id: "avif" },
+  { id: "png" },
 ];
 
 const logFile = (file, ext, size) => {
