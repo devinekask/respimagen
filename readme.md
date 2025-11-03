@@ -18,7 +18,7 @@ Options:
   -s, --sizes      different sizes to generate, separated by comma. If omitted,
                    keeps original size                               [optional]
   -t, --filetypes  different filetypes to generate, separated by comma
-                                                        [default: "avif,jpeg"]
+                                                             [default: "avif"]
   -o, --outputdir  output directory                           [default: "output"]
   -c               clear the output directory before processing, default false
                                                       [boolean] [default: false]
@@ -27,11 +27,14 @@ Examples:
   node index.js beach.jpg -s 500,750 -t webp,avif
     Resize and convert beach.jpg to 500px and 750px in webp and avif format
 
-  node index.js ./photos -t avif,jpeg
-    Convert all images to avif and jpeg, keeping original dimensions
+  node index.js ./photos
+    Convert all images to avif, keeping original dimensions
 
-  node index.js ./photos -s 300,500,700 -t avif,jpeg -o output -c
-    Process all images in the photos directory with multiple sizes
+  node index.js ./photos -s 300,500,700
+    Process all images with multiple sizes (avif format)
+
+  node index.js ./photos -s 300,500,700 -t webp,avif -o output -c
+    Process all images with multiple sizes and formats, clearing output first
 ```
 
 ## Programmatic Usage

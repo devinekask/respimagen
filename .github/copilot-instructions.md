@@ -48,7 +48,7 @@ Respimagen is a Node.js CLI tool and library for batch image processing. It resi
 ### Image Processing
 
 - Sizes are optional - if not specified, keeps original dimensions
-- Default formats: `avif,jpeg`
+- Default format: `avif` (modern, efficient format)
 - Output directory: `output/` (configurable)
 - File naming with sizes: `{basename}-{size}.{ext}`
 - File naming without sizes: `{basename}.{ext}`
@@ -66,11 +66,14 @@ Respimagen is a Node.js CLI tool and library for batch image processing. It resi
 ### Running the CLI
 
 ```bash
-# Single file
+# Single file with multiple formats
 node index.js image.jpg -s 500,750 -t webp,avif
 
-# Directory
-node index.js ./photos -s 300,500,700 -t avif,jpeg -o output -c
+# Directory with default avif format
+node index.js ./photos -s 300,500,700
+
+# Simplest: just convert to avif, keep original size
+node index.js ./photos
 
 # Via wrapper
 node bin/respimagen.mjs image.jpg

@@ -23,7 +23,7 @@ const argv = yargs(process.argv.slice(2))
   .describe("c", "clear the output directory before processing, default false")
   .boolean("c")
   .default({
-    filetypes: "avif,jpeg",
+    filetypes: "avif",
     outputdir: "output",
     c: false,
   })
@@ -32,12 +32,12 @@ const argv = yargs(process.argv.slice(2))
     "Resize and convert beach.jpg to 500px and 750px in webp and avif format"
   )
   .example(
-    "$0 ./photos -t avif,jpeg",
-    "Convert all images in photos directory to avif and jpeg (original size)"
+    "$0 ./photos",
+    "Convert all images in photos directory to avif (original size)"
   )
   .example(
-    "$0 ./photos -s 300,500,700 -t avif,jpeg",
-    "Process all images in the photos directory"
+    "$0 ./photos -s 300,500,700",
+    "Process all images in the photos directory to avif with multiple sizes"
   ).argv;
 
 const { input, outputdir } = argv;
