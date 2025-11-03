@@ -4,19 +4,24 @@
 	"description": "",
 	"main": "index.js",
 	"type": "module",
+	"bin": {
+		"respimagen": "bin/respimagen.mjs"
+	},
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "node --test",
+		"cli": "node index.js",
+		"lint": "npx eslint . || true"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"sharp": "^0.33.1",
-		"yargs": "^17.7.2"
+		"sharp": "^0.34.4",
+		"yargs": "^18.0.0"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.11.1",
-		"eslint": "^9.11.1",
-		"globals": "^15.10.0"
+		"@eslint/js": "^9.39.0",
+		"eslint": "^9.39.0",
+		"globals": "^16.5.0"
 	}
 }
