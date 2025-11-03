@@ -4,36 +4,46 @@ import { processPath } from "./lib/processor.js";
 
 const argv = yargs(process.argv.slice(2))
   .usage(
-    "Usage: $0 -i <input> -s [sizes] -t [filetypes] -o [outputdir] -c [clear]"
+    "Usage: $0 <input> -s [sizes] -t [filetypes] -o [outputdir] -c [clear]"
   )
-  .alias("i", "input")
+  .command("$0 <input>", "Process image(s)", (yargs) => {
+    yargs.positional("input", {
+      describe: "file or directory to process",
+      type: "string",
+    });
+  })
   .alias("s", "sizes")
   .alias("t", "filetypes")
   .alias("o", "outputdir")
-  .describe("i", "file or directory to process")
   .describe(
     "s",
-    "different sizes to generate, separated by comma. Add a '-' to skip this"
+    "different sizes to generate, separated by comma. If omitted, keeps original size"
   )
   .describe("t", "different filetypes to generate, separated by comma")
   .describe("c", "clear the output directory before processing, default false")
   .boolean("c")
-  .demandOption(["input"])
   .default({
-    sizes: "300,500,700",
     filetypes: "avif,jpeg",
     outputdir: "output",
     c: false,
   })
   .example(
-    "$0 -i beach.jpg -s 500,750 -t webp,avif",
+    "$0 beach.jpg -s 500,750 -t webp,avif",
     "Resize and convert beach.jpg to 500px and 750px in webp and avif format"
+  )
+  .example(
+    "$0 ./photos -t avif,jpeg",
+    "Convert all images in photos directory to avif and jpeg (original size)"
+  )
+  .example(
+    "$0 ./photos -s 300,500,700 -t avif,jpeg",
+    "Process all images in the photos directory"
   ).argv;
 
 const { input, outputdir } = argv;
 const sizes = [];
 
-if (argv.sizes != "-") {
+if (argv.sizes) {
   // yargs may parse a single numeric size as Number (e.g. -s 100),
   // so coerce to string before splitting to avoid calling .split on a Number.
   const sizesRaw =

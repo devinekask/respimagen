@@ -7,24 +7,31 @@ Feel free to use it and modify it to your needs.
 ## CLI Usage
 
 ```bash
-node index.js -i <input> -s [sizes] -t [filetypes] -o [outputdir] -c [clear]
+node index.js <input> -s [sizes] -t [filetypes] -o [outputdir] -c [clear]
+
+Positional Arguments:
+  input            file or directory to process                       [required]
 
 Options:
       --help       Show help                                           [boolean]
       --version    Show version number                                 [boolean]
-  -i, --input      file or directory to process                       [required]
-  -s, --sizes      different sizes to generate, separated by comma. Add a '-' to
-                    skip this
+  -s, --sizes      different sizes to generate, separated by comma. If omitted,
+                   keeps original size                               [optional]
   -t, --filetypes  different filetypes to generate, separated by comma
+                                                        [default: "avif,jpeg"]
+  -o, --outputdir  output directory                           [default: "output"]
   -c               clear the output directory before processing, default false
                                                       [boolean] [default: false]
 
 Examples:
-  node index.js -i beach.jpg -s 500,750 -t webp,avif
+  node index.js beach.jpg -s 500,750 -t webp,avif
     Resize and convert beach.jpg to 500px and 750px in webp and avif format
 
-  node index.js -i ./photos -s 300,500,700 -t avif,jpeg -o output -c
-    Process all images in the photos directory
+  node index.js ./photos -t avif,jpeg
+    Convert all images to avif and jpeg, keeping original dimensions
+
+  node index.js ./photos -s 300,500,700 -t avif,jpeg -o output -c
+    Process all images in the photos directory with multiple sizes
 ```
 
 ## Programmatic Usage

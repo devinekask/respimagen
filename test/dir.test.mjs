@@ -54,7 +54,6 @@ test("integration CLI directory", async (t) => {
   const nodeBin = process.execPath;
   const cliArgs = [
     "index.js",
-    "-i",
     inputDir,
     "-s",
     "50",

@@ -20,9 +20,9 @@ Respimagen is a Node.js CLI tool and library for batch image processing. It resi
 ### CLI Runner (`index.js`)
 
 - Thin wrapper around `lib/processor.js`
-- Uses yargs for argument parsing
+- Uses yargs for argument parsing with positional input argument
 - Calls `processPath()` and logs results
-- Executable with Node.js: `node index.js -i <input> ...`
+- Executable with Node.js: `node index.js <input> ...`
 
 ### Utilities (`utils.js`)
 
@@ -47,10 +47,11 @@ Respimagen is a Node.js CLI tool and library for batch image processing. It resi
 
 ### Image Processing
 
-- Default sizes: `300,500,700` (px widths)
+- Sizes are optional - if not specified, keeps original dimensions
 - Default formats: `avif,jpeg`
 - Output directory: `output/` (configurable)
-- File naming: `{basename}-{size}.{ext}`
+- File naming with sizes: `{basename}-{size}.{ext}`
+- File naming without sizes: `{basename}.{ext}`
 
 ### Testing
 
@@ -66,13 +67,13 @@ Respimagen is a Node.js CLI tool and library for batch image processing. It resi
 
 ```bash
 # Single file
-node index.js -i image.jpg -s 500,750 -t webp,avif
+node index.js image.jpg -s 500,750 -t webp,avif
 
 # Directory
-node index.js -i ./photos -s 300,500,700 -t avif,jpeg -o output -c
+node index.js ./photos -s 300,500,700 -t avif,jpeg -o output -c
 
 # Via wrapper
-node bin/respimagen.mjs -i image.jpg
+node bin/respimagen.mjs image.jpg
 ```
 
 ### Running Tests

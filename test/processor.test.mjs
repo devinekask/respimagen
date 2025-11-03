@@ -144,3 +144,66 @@ test("processPath handles directory input", async () => {
     await fs.rm(testDir, { recursive: true, force: true });
   }
 });
+
+test("processPath without sizes keeps original dimensions", async () => {
+  const testDir = path.join(process.cwd(), "test-fixtures-processor-no-resize");
+  const inputFile = path.join(testDir, "test-image.jpg");
+  const outputDir = path.join(testDir, "output");
+
+  try {
+    await fs.mkdir(testDir, { recursive: true });
+    
+    // Create 120x120 test image
+    await sharp({
+      create: {
+        width: 120,
+        height: 120,
+        channels: 3,
+        background: { r: 255, g: 100, b: 50 },
+      },
+    })
+      .jpeg()
+      .toFile(inputFile);
+
+    // Process without sizes
+    const result = await processPath(inputFile, {
+      sizes: null,
+      filetypes: "webp,avif",
+      outputdir: outputDir,
+      clear: true,
+    });
+
+    // Verify output
+    assert.ok(result.output, "result should have output array");
+    assert.strictEqual(
+      result.output.length,
+      2,
+      "should have 2 outputs (2 formats, no resize)"
+    );
+    
+    // Should not generate srcset when no sizes specified
+    assert.strictEqual(result.srcset, undefined, "should not have srcset when no sizes");
+
+    // Verify files exist with original dimensions
+    const outputFiles = await fs.readdir(outputDir);
+    assert.strictEqual(outputFiles.length, 2, "should have 2 output files");
+    
+    // Check files don't have size suffix
+    assert.ok(
+      outputFiles.some((f) => f === "test-image.webp"),
+      "should have webp without size suffix"
+    );
+    assert.ok(
+      outputFiles.some((f) => f === "test-image.avif"),
+      "should have avif without size suffix"
+    );
+    
+    // Verify dimensions are preserved
+    const webpPath = path.join(outputDir, "test-image.webp");
+    const metadata = await sharp(webpPath).metadata();
+    assert.strictEqual(metadata.width, 120, "width should be preserved");
+    assert.strictEqual(metadata.height, 120, "height should be preserved");
+  } finally {
+    await fs.rm(testDir, { recursive: true, force: true });
+  }
+});

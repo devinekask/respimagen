@@ -43,7 +43,6 @@ test("integration CLI single file", async (t) => {
   const nodeBin = process.execPath;
   const cliArgs = [
     "index.js",
-    "-i",
     inputImage,
     "-s",
     "100",
