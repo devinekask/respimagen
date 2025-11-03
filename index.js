@@ -1,27 +1,6 @@
 #!/usr/bin/env node
-import fs from "fs/promises";
-import path from "path";
-import sharp from "sharp";
 import yargs from "yargs";
-import { srcsetGenerator } from "./utils.js";
-
-const output = [];
-const sizes = [];
-let files = [];
-const queue = [];
-
-const defaultFiletypeSettings = [
-  { id: "avif" },
-  { id: "webp" },
-  { id: "jpeg", options: { mozjpeg: true } },
-  { id: "jpg", options: { mozjpeg: true } },
-  { id: "png" },
-];
-
-const logFile = (file, ext, size) => {
-  console.log(`✅ ${file}-${size}.${ext} - ${size}`);
-  output.push({ file: `${file}-${size}.${ext}`, ext, size });
-};
+import { processPath } from "./lib/processor.js";
 
 const argv = yargs(process.argv.slice(2))
   .usage(
@@ -52,6 +31,7 @@ const argv = yargs(process.argv.slice(2))
   ).argv;
 
 const { input, outputdir } = argv;
+const sizes = [];
 
 if (argv.sizes != "-") {
   // yargs may parse a single numeric size as Number (e.g. -s 100),
@@ -61,97 +41,27 @@ if (argv.sizes != "-") {
   sizes.push(...sizesRaw.split(",").map((s) => parseInt(s)));
 }
 
-const formats = argv.filetypes
-  .split(",")
-  .map((f) =>
-    defaultFiletypeSettings.find(
-      (df) => df.id.toLowerCase() === f.toLowerCase()
-    )
-  );
+const options = {
+  sizes: sizes.length > 0 ? sizes : null,
+  filetypes: argv.filetypes,
+  outputdir,
+  clear: argv.c,
+};
 
 try {
-  const inputPath = path.resolve(input);
-  const stats = await fs.stat(inputPath);
+  const result = await processPath(input, options);
 
-  if (stats.isFile()) {
-    // If it's a file, add it to the array
-    files.push(inputPath);
-  } else if (stats.isDirectory()) {
-    // If it's a directory, get all files in the directory
-    const rawDirFils = await fs.readdir(inputPath);
-    const directoryFiles = rawDirFils.map((file) => path.join(inputPath, file));
+  // Log results
+  for (const item of result.output) {
+    console.log(`✅ ${item.file} - ${item.size}`);
+  }
 
-    // Filter out non-files (e.g., directories, symlinks) correctly by awaiting
-    // lstat for each path. Using Promise.all ensures we wait for all checks.
-    const checks = await Promise.all(
-      directoryFiles.map(async (file) => {
-        try {
-          const check = await fs.lstat(file);
-          return { file, isFile: check.isFile() };
-        } catch (e) {
-          // If lstat fails for a path, skip it
-          return { file, isFile: false };
-        }
-      })
-    );
+  console.log("Everything done");
 
-    files = checks.filter((c) => c.isFile).map((c) => c.file);
-  } else {
-    console.log(`${inputPath} is neither a file nor a directory`);
+  if (result.srcset) {
+    console.log(`\n` + result.srcset);
   }
 } catch (error) {
   console.error(`Error: ${error.message}`);
+  process.exit(1);
 }
-
-//if clear flag is set, clear ouput directory
-if (argv.c) {
-  await fs.rm(outputdir, { recursive: true, force: true });
-}
-
-try {
-  await fs.mkdir(outputdir, { recursive: true });
-} catch (e) {
-  console.log("error", e);
-}
-
-for (const file of files) {
-  const filename = path.basename(file, path.extname(file));
-
-  const image = sharp(file);
-
-  for (const format of formats) {
-    for (const size of sizes) {
-      queue.push(
-        image
-          .clone()
-          .resize({ width: size })
-          .toFormat(format.id, format.options)
-          .toFile(`${outputdir}/${filename}-${size}.${format.id}`)
-          .then(() => logFile(filename, format.id, size))
-          .catch((err) => console.error("Error processing file", err))
-      );
-    }
-    if (sizes.length === 0) {
-      const imgSize = await image.metadata();
-      queue.push(
-        image
-          .clone()
-          .toFormat(format.id, format.options)
-          .toFile(`${outputdir}/${filename}.${format.id}`)
-          .then(() => logFile(filename, format.id, imgSize.width))
-          .catch((err) => console.error("Error processing file", err))
-      );
-    }
-  }
-}
-
-Promise.all(queue)
-  .then(() => {
-    console.log("Everything done");
-    if (sizes.length != 0) {
-      console.log(`\n` + srcsetGenerator(output));
-    }
-  })
-  .catch((err) => {
-    console.error("Error processing files", err);
-  });

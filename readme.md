@@ -1,11 +1,13 @@
 # Responsive Images Generator
 
-This is a nodejs script that generates responsive images for your website. It uses the [sharp](https://sharp.pixelplumbing.com/) image processing library.
+This is a Node.js script and library that generates responsive images for your website. It uses the [sharp](https://sharp.pixelplumbing.com/) image processing library.
 
 Feel free to use it and modify it to your needs.
 
+## CLI Usage
+
 ```bash
-Usage:  -i <input> -s [sizes] -t [filetypes] -o [outputdir] -c [clear]
+node index.js -i <input> -s [sizes] -t [filetypes] -o [outputdir] -c [clear]
 
 Options:
       --help       Show help                                           [boolean]
@@ -18,6 +20,48 @@ Options:
                                                       [boolean] [default: false]
 
 Examples:
-   -i beach.jpg -s 500,750 -t webp,avif  Resize and convert beach.jpg to 500px a
-                                         nd 750px in webp and avif format
+  node index.js -i beach.jpg -s 500,750 -t webp,avif
+    Resize and convert beach.jpg to 500px and 750px in webp and avif format
+
+  node index.js -i ./photos -s 300,500,700 -t avif,jpeg -o output -c
+    Process all images in the photos directory
 ```
+
+## Programmatic Usage
+
+You can also import and use the core functionality in your own Node.js projects:
+
+```javascript
+import { processPath } from './lib/processor.js';
+
+// Process a single image
+const result = await processPath('photo.jpg', {
+  sizes: [400, 800, 1200],
+  filetypes: 'webp,avif',
+  outputdir: 'dist',
+  clear: true
+});
+
+console.log(result.output); // Array of processed files
+console.log(result.srcset); // Srcset string for responsive images
+
+// Process a directory
+const dirResult = await processPath('./images', {
+  sizes: [300, 500, 700],
+  filetypes: 'avif,jpeg',
+  outputdir: 'output'
+});
+```
+
+## Testing
+
+Run the test suite with:
+
+```bash
+npm test
+```
+
+## Dependencies
+
+- **sharp** (^0.34.4): Image processing
+- **yargs** (^18.0.0): CLI argument parsing

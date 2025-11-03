@@ -4,6 +4,9 @@
 	"description": "",
 	"main": "index.js",
 	"type": "module",
+	"bin": {
+		"respimagen": "bin/respimagen.mjs"
+	},
 	"scripts": {
 		"test": "node --test",
 		"cli": "node index.js",
