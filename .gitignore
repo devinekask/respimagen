@@ -2,6 +2,10 @@ input
 output
 .DS_Store
 
+# Test files
+test/fixtures/
+test/tmp/
+
 # Logs
 logs
 *.log

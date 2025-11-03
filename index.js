@@ -54,7 +54,11 @@ const argv = yargs(process.argv.slice(2))
 const { input, outputdir } = argv;
 
 if (argv.sizes != "-") {
-  sizes.push(...argv.sizes.split(",").map((s) => parseInt(s)));
+  // yargs may parse a single numeric size as Number (e.g. -s 100),
+  // so coerce to string before splitting to avoid calling .split on a Number.
+  const sizesRaw =
+    typeof argv.sizes === "string" ? argv.sizes : String(argv.sizes);
+  sizes.push(...sizesRaw.split(",").map((s) => parseInt(s)));
 }
 
 const formats = argv.filetypes
@@ -101,7 +105,7 @@ try {
 
 //if clear flag is set, clear ouput directory
 if (argv.c) {
-  await fs.rm(outputdir, { recursive: true });
+  await fs.rm(outputdir, { recursive: true, force: true });
 }
 
 try {
