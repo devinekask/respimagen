@@ -77,11 +77,21 @@ try {
     const rawDirFils = await fs.readdir(inputPath);
     const directoryFiles = rawDirFils.map((file) => path.join(inputPath, file));
 
-    // Filter out non-files (e.g., directories, symlinks) if necessary
-    files = directoryFiles.filter(async (file) => {
-      const check = await fs.lstat(file);
-      return check.isFile();
-    });
+    // Filter out non-files (e.g., directories, symlinks) correctly by awaiting
+    // lstat for each path. Using Promise.all ensures we wait for all checks.
+    const checks = await Promise.all(
+      directoryFiles.map(async (file) => {
+        try {
+          const check = await fs.lstat(file);
+          return { file, isFile: check.isFile() };
+        } catch (e) {
+          // If lstat fails for a path, skip it
+          return { file, isFile: false };
+        }
+      })
+    );
+
+    files = checks.filter((c) => c.isFile).map((c) => c.file);
   } else {
     console.log(`${inputPath} is neither a file nor a directory`);
   }
