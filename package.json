@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
-		"test": "node test/integration.test.js",
+		"test": "node test/integration.test.js && node test/integration-dir.test.js",
 		"cli": "node index.js",
 		"lint": "npx eslint . || true"
 	},
