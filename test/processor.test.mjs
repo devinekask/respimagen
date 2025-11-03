@@ -152,7 +152,7 @@ test("processPath without sizes keeps original dimensions", async () => {
 
   try {
     await fs.mkdir(testDir, { recursive: true });
-    
+
     // Create 120x120 test image
     await sharp({
       create: {
@@ -180,14 +180,18 @@ test("processPath without sizes keeps original dimensions", async () => {
       2,
       "should have 2 outputs (2 formats, no resize)"
     );
-    
+
     // Should not generate srcset when no sizes specified
-    assert.strictEqual(result.srcset, undefined, "should not have srcset when no sizes");
+    assert.strictEqual(
+      result.srcset,
+      undefined,
+      "should not have srcset when no sizes"
+    );
 
     // Verify files exist with original dimensions
     const outputFiles = await fs.readdir(outputDir);
     assert.strictEqual(outputFiles.length, 2, "should have 2 output files");
-    
+
     // Check files don't have size suffix
     assert.ok(
       outputFiles.some((f) => f === "test-image.webp"),
@@ -197,7 +201,7 @@ test("processPath without sizes keeps original dimensions", async () => {
       outputFiles.some((f) => f === "test-image.avif"),
       "should have avif without size suffix"
     );
-    
+
     // Verify dimensions are preserved
     const webpPath = path.join(outputDir, "test-image.webp");
     const metadata = await sharp(webpPath).metadata();
