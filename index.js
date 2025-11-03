@@ -19,7 +19,10 @@ const argv = yargs(process.argv.slice(2))
     "s",
     "different sizes to generate, separated by comma. If omitted, keeps original size"
   )
-  .describe("t", "different filetypes to generate, separated by comma")
+  .describe(
+    "t",
+    "different filetypes to generate, separated by comma. Supported: avif, webp, jpeg, jpg, png"
+  )
   .describe("c", "clear the output directory before processing, default false")
   .boolean("c")
   .default({

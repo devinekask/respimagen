@@ -18,6 +18,7 @@ Options:
   -s, --sizes      different sizes to generate, separated by comma. If omitted,
                    keeps original size                               [optional]
   -t, --filetypes  different filetypes to generate, separated by comma
+                   Supported: avif, webp, jpeg, jpg, png
                                                              [default: "avif"]
   -o, --outputdir  output directory                           [default: "output"]
   -c               clear the output directory before processing, default false
