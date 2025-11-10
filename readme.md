@@ -4,11 +4,30 @@ This is a Node.js script and library that generates responsive images for your w
 
 Feel free to use it and modify it to your needs.
 
-## CLI Usage
+## Installation
+
+Install this package globally using npm:
 
 ```bash
-node index.js <input> -s [sizes] -t [filetypes] -o [outputdir] -c [clear]
+npm install -g respimagen
+```
 
+### Show help
+
+```bash
+respimagen --help
+```
+
+## Usage
+
+```bash
+respimagen <input> -s [sizes] -t [filetypes] -o [outputdir] -c [clear]
+```
+
+### Options
+
+
+``` bash
 Positional Arguments:
   input            file or directory to process                       [required]
 
@@ -24,18 +43,32 @@ Options:
   -c               clear the output directory before processing, default false
                                                       [boolean] [default: false]
 
-Examples:
-  node index.js beach.jpg -s 500,750 -t webp,avif
-    Resize and convert beach.jpg to 500px and 750px in webp and avif format
+```
 
-  node index.js ./photos
-    Convert all images to avif, keeping original dimensions
+## Examples
 
-  node index.js ./photos -s 300,500,700
-    Process all images with multiple sizes (avif format)
+Resize and convert beach.jpg to 500px and 750px in webp and avif format.
 
-  node index.js ./photos -s 300,500,700 -t webp,avif -o output -c
-    Process all images with multiple sizes and formats, clearing output first
+```bash
+  respimagen beach.jpg -s 500,750 -t webp,avif
+```
+
+Convert all images to avif, keeping original dimensions
+
+```bash
+  respimagen  ./photos
+```
+
+ Process all images with multiple sizes (avif format)
+
+```bash
+  respimagen ./photos -s 300,500,700
+```
+
+Process all images with multiple sizes and formats, clearing output first
+
+```bash
+  respimagen ./photos -s 300,500,700 -t webp,avif -o output -c
 ```
 
 ## Programmatic Usage
