@@ -6,7 +6,13 @@ Feel free to use it and modify it to your needs.
 
 ## Installation
 
-Install this package globally using npm:
+Use it via npx:
+
+```bash
+npx respimagen
+```
+
+or install it globally using npm:
 
 ```bash
 npm install -g respimagen
@@ -25,7 +31,6 @@ respimagen <input> -s [sizes] -t [filetypes] -o [outputdir] -c [clear]
 ```
 
 ### Options
-
 
 ``` bash
 Positional Arguments:
