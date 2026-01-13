@@ -64,3 +64,51 @@ test("integration CLI single file", async (t) => {
   await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
   await fs.rm(fixturesDir, { recursive: true, force: true }).catch(() => {});
 });
+
+test("integration CLI accepts width×height sizes", async () => {
+  await ensureDir(tmpDir);
+  await ensureDir(fixturesDir);
+
+  const inputImage = path.join(fixturesDir, "test.png");
+  const outDir = path.join(tmpDir, "output");
+
+  // create a tiny 200x200 red PNG
+  await sharp({
+    create: {
+      width: 200,
+      height: 200,
+      channels: 3,
+      background: { r: 255, g: 0, b: 0 },
+    },
+  })
+    .png()
+    .toFile(inputImage);
+
+  const nodeBin = process.execPath;
+  const cliArgs = [
+    "index.js",
+    inputImage,
+    "-s",
+    "70×50, 40×20",
+    "-t",
+    "jpeg",
+    "-o",
+    outDir,
+    "-c",
+  ];
+
+  const { stdout } = await run(nodeBin, cliArgs);
+  assert.match(stdout, /Everything done/);
+
+  const expectedFiles = [
+    path.join(outDir, "test-70.jpeg"),
+    path.join(outDir, "test-40.jpeg"),
+  ];
+  for (const f of expectedFiles) {
+    const stat = await fs.stat(f);
+    assert.ok(stat.isFile());
+  }
+
+  await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
+  await fs.rm(fixturesDir, { recursive: true, force: true }).catch(() => {});
+});
