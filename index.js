@@ -46,12 +46,24 @@ const argv = yargs(process.argv.slice(2))
 const { input, outputdir } = argv;
 const sizes = [];
 
+const parseSize = (value) => {
+  const str = String(value).trim();
+  const match = str.match(/^(\d+)(?:[x×]\d+)?$/i);
+  const parsed = match ? parseInt(match[1], 10) : parseInt(str, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
 if (argv.sizes) {
   // yargs may parse a single numeric size as Number (e.g. -s 100),
   // so coerce to string before splitting to avoid calling .split on a Number.
   const sizesRaw =
     typeof argv.sizes === "string" ? argv.sizes : String(argv.sizes);
-  sizes.push(...sizesRaw.split(",").map((s) => parseInt(s)));
+  sizes.push(
+    ...sizesRaw
+      .split(",")
+      .map((s) => parseSize(s))
+      .filter((s) => s !== null)
+  );
 }
 
 const options = {
