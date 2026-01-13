@@ -22,7 +22,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      id-token: write  # Required for OIDC
+      id-token: write
       contents: read
     steps:
       - uses: actions/checkout@v4
@@ -30,5 +30,6 @@ jobs:
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org/
+      - run: npm -v
       - run: npm ci
       - run: npm publish
