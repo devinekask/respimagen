@@ -48,7 +48,7 @@ const sizes = [];
 
 const parseSize = (value) => {
   const str = String(value).trim();
-  const match = str.match(/^(\d+)(?:[x×]\d+)?$/i);
+  const match = str.match(/^(\d+)(?:\s*[x×]\s*\d+)?$/i);
   if (!match) return null;
   const parsed = parseInt(match[1], 10);
   return Number.isFinite(parsed) ? parsed : null;
